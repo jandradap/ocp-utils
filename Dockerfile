@@ -33,6 +33,7 @@ RUN apk --update --clean-protected --no-cache add \
   zip \
   p7zip \
   unzip \
+  rsync \
   && rm -rf /var/cache/apk/*
 
 ADD assets/entrypoint.sh /bin/entrypoint.sh

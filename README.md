@@ -25,3 +25,4 @@ Image non-root container with utils for network testing and migrate content betw
 - zip
 - p7zip
 - unzip
+- rsync

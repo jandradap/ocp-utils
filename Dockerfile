@@ -40,6 +40,6 @@ ADD assets/entrypoint.sh /bin/entrypoint.sh
 
 RUN chmod +x /bin/entrypoint.sh
 
-USER 1001
+USER 0
 
 ENTRYPOINT ["/bin/entrypoint.sh"]

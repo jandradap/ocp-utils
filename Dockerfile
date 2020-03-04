@@ -88,6 +88,11 @@ RUN apk --no-cache add $BUILD_DEPS $RUN_DEPS && \
     rm -rf /tmp/oc.tar.gz && \
     apk del $BUILD_DEPS
 
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
+  && mv kubectl /usr/local/bin/ \
+  && chmod +x /usr/local/bin/kubectl
+
+
 ADD assets/entrypoint.sh /bin/entrypoint.sh
 
 RUN chmod +x /bin/entrypoint.sh

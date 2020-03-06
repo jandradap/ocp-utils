@@ -14,9 +14,31 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 			org.label-schema.schema-version="1.0" \
 			maintainer="Jorge Andrada Prieto <jandradap@gmail.com>"
 
-ENV LANG=C.UTF-8
+# BASE
+RUN apk --update --clean-protected --no-cache add \
+  drill \
+  htop \
+  bind-tools \
+  wget \
+  curl \
+  nmap \
+  mariadb-client \
+  vim \
+  openssl \
+  bash \
+  jq \
+  sudo \
+  iputils \
+  busybox-extras \
+  nfs-utils \
+  zip \
+  p7zip \
+  unzip \
+  rsync \
+  && rm -rf /var/cache/apk/*
 
-# Here we install GNU libc (aka glibc) and set C.UTF-8 locale as default.
+# GLIBC FOR OC BINARY
+ENV LANG=C.UTF-8
 
 RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
     ALPINE_GLIBC_PACKAGE_VERSION="2.30-r0" && \
@@ -56,28 +78,7 @@ RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases
         "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
-RUN apk --update --clean-protected --no-cache add \
-  drill \
-  htop \
-  bind-tools \
-  wget \
-  curl \
-  nmap \
-  mariadb-client \
-  vim \
-  openssl \
-  bash \
-  jq \
-  sudo \
-  iputils \
-  busybox-extras \
-  nfs-utils \
-  zip \
-  p7zip \
-  unzip \
-  rsync \
-  && rm -rf /var/cache/apk/*
-
+# OC
 ARG OC_VERSION=4.5
 ARG BUILD_DEPS='tar gzip'
 ARG RUN_DEPS='curl ca-certificates gettext'
@@ -88,10 +89,10 @@ RUN apk --no-cache add $BUILD_DEPS $RUN_DEPS && \
     rm -rf /tmp/oc.tar.gz && \
     apk del $BUILD_DEPS
 
+# KUBELET
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
   && mv kubectl /usr/local/bin/ \
   && chmod +x /usr/local/bin/kubectl
-
 
 ADD assets/entrypoint.sh /bin/entrypoint.sh
 

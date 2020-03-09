@@ -26,5 +26,5 @@ Image non-root container with utils for network testing and migrate content betw
 - p7zip
 - unzip
 - rsync
-- kubelet
+- kubectl
 - oc

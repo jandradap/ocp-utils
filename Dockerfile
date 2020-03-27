@@ -36,6 +36,7 @@ RUN yum makecache && yum install -y epel-release\
   p7zip \
   unzip \
   rsync \
+  sysstat \
   && yum clean all
 
 COPY assets/mariadb.repo /etc/yum.repos.d/

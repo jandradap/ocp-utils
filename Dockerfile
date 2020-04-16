@@ -35,6 +35,7 @@ RUN apk --update --clean-protected --no-cache add \
   p7zip \
   unzip \
   rsync \
+  strace \
   && rm -rf /var/cache/apk/*
 
 # GLIBC FOR OC BINARY

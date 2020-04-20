@@ -1,5 +1,13 @@
 #!/bin/bash
 
+echo ".___  ___. ____    ____  _______.  ______      __          _______   __    __  .___  ___. .______   ";
+echo "|   \/   | \   \  /   / /       | /  __  \    |  |        |       \ |  |  |  | |   \/   | |   _  \  ";
+echo "|  \  /  |  \   \/   / |   (----\`|  |  |  |   |  |        |  .--.  ||  |  |  | |  \  /  | |  |_)  | ";
+echo "|  |\/|  |   \_    _/   \   \    |  |  |  |   |  |        |  |  |  ||  |  |  | |  |\/|  | |   ___/  ";
+echo "|  |  |  |     |  | .----)   |   |  \`--'  '--.|  \`----.   |  '--'  ||  \`--'  | |  |  |  | |  |      ";
+echo "|__|  |__|     |__| |_______/     \_____\_____|_______|   |_______/  \______/  |__|  |__| | _|      ";
+echo "                                                                                                    ";
+
 DB_USER=${DB_USER:-${MYSQL_ENV_DB_USER}}
 DB_PASS=${DB_PASS:-${MYSQL_ENV_DB_PASS}}
 BACKUP_DATABASES=${BACKUP_DATABASES:-${MYSQL_ENV_DB_NAME}}
@@ -10,24 +18,24 @@ BACKUP_STORAGE=${BACKUP_STORAGE:-/tmp}
 DATE_BACKUP=$(date +%Y%m%d)
 
 if [[ ${DB_USER} == "" ]]; then
-  echo "ERROR: Missing DB_USER env variable"
+  echo -e "\nERROR: Missing DB_USER env variable"
   exit 1
 fi
 
 if [[ ${DB_PASS} == "" ]]; then
-  echo "ERROR: Missing DB_PASS env variable"
+  echo -e "\nERROR: Missing DB_PASS env variable"
   exit 1
 fi
 
 if [[ ${DB_HOST} == "" ]]; then
-  echo "ERROR: Missing DB_HOST env variable"
+  echo -e "\nERROR: Missing DB_HOST env variable"
   exit 1
 fi
 
-echo -e "System Info:"
+echo -e "\nSystem Info:"
 df -h | grep mysqldump
 
-echo -e "Creating working directory ${BACKUP_STORAGE}/${DATE_BACKUP}"
+echo -e "\nCreating working directory ${BACKUP_STORAGE}/${DATE_BACKUP}"
 mkdir -p ${BACKUP_STORAGE}/${DATE_BACKUP}
 ls -lah ${BACKUP_STORAGE}/${DATE_BACKUP}
 
@@ -44,5 +52,5 @@ else
   done
 fi
 
-echo -e "Backup list:"
+echo -e "\nBackup list:"
 ls -lah ${BACKUP_STORAGE}/${DATE_BACKUP}

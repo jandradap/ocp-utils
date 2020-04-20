@@ -38,6 +38,7 @@ df -h | grep mysqldump
 
 if [ -d "${BACKUP_PATH}" ]; then
   echo -e "\nERROR: Directory ${BACKUP_PATH} already exits."
+  exit 1
 else
   echo -e "\nCreating working directory ${BACKUP_PATH}"
   mkdir -p ${BACKUP_PATH}

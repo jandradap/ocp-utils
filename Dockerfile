@@ -36,6 +36,7 @@ RUN apk --update --clean-protected --no-cache add \
   unzip \
   rsync \
   strace \
+  mongodb-tools \
   && rm -rf /var/cache/apk/*
 
 # GLIBC FOR OC BINARY

@@ -57,4 +57,10 @@ else
 
   echo -e "\nBackup list:"
   ls -lah ${BACKUP_STORAGE}/${DATE_BACKUP}
+
+  echo -e "\nCreating sha1sum:"
+  cd ${BACKUP_STORAGE}/${DATE_BACKUP} ; 
+  for i in *.*; do sha1sum "$i" ; done) >> checksums.txt
+  cat checksums.txt
+
 fi

@@ -46,14 +46,14 @@ else
 
   if [ "$ALL_DATABASES" = true ] ; then
     echo -e "\nDumping all database option: \n Databases: ${BACKUP_DATABASES}"
-    mysqldump --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" --all-databases > ${BACKUP_PATH}/all_databases.sql
+    mysqldump --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" --all-databases > ${BACKUP_PATH}/all_databases.sql || exit 1
     sha1sum ${BACKUP_PATH}/all_databases.sql >> ${BACKUP_PATH}/checksums.txt
   else
     echo -e "\nDumping specific databases option:"
     for db in $BACKUP_DATABASES; do
       if [[ "$db" != "information_schema" ]] && [[ "$db" != "performance_schema" ]] && [[ "$db" != "mysql" ]] && [[ "$db" != _* ]] && [[ "$db" != "$IGNORE_DATABASE" ]]; then
         echo -e "\t- Dumping database: $db"
-        mysqldump --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" --databases ${db} > ${BACKUP_PATH}/${db}.sql
+        mysqldump --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" --databases ${db} > ${BACKUP_PATH}/${db}.sql || exit 1
         sha1sum ${BACKUP_PATH}/${db}.sql >> ${BACKUP_PATH}/checksums.txt
       fi
     done

@@ -54,7 +54,7 @@ else
       if [[ "$db" != "information_schema" ]] && [[ "$db" != "performance_schema" ]] && [[ "$db" != "mysql" ]] && [[ "$db" != _* ]] && [[ "$db" != "$IGNORE_DATABASE" ]]; then
         echo -e "\t- Dumping database: $db"
         mysqldump --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" --databases ${db} > ${BACKUP_PATH}/${db}.sql
-        sha1sum ${BACKUP_PATH}/${db} >> ${BACKUP_PATH}/checksums.txt
+        sha1sum ${BACKUP_PATH}/${db}.sql >> ${BACKUP_PATH}/checksums.txt
       fi
     done
   fi

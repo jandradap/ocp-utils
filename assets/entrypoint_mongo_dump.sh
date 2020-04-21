@@ -58,7 +58,7 @@ else
   else
     echo -e "\nDumping specific databases option:"
     for db in $BACKUP_DATABASES; do
-      mongodump -j 1 -u "${DB_USER}" -p "${DB_PASS}" --host "${DB_HOST}" --port ${DB_PORT}  --authenticationDatabase=admin --gzip --db ${db} --out ${BACKUP_PATH} || exit 1
+      mongodump -j 1 -u "${DB_USER}" -p "${DB_PASS}" --host "${DB_HOST}" --port ${DB_PORT} --authenticationDatabase=admin --gzip --db ${db} --out ${BACKUP_PATH} || exit 1
     done
     find ${BACKUP_PATH} -type f -print0  | xargs -0 sha1sum >> ${BACKUP_PATH}/checksums.txt
   fi

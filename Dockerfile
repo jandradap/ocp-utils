@@ -101,6 +101,7 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
 
 ADD assets/entrypoint.sh /bin/entrypoint.sh
 ADD assets/entrypoint_mysql_dump.sh /bin/entrypoint_mysql_dump.sh
+ADD assets/entrypoint_mongo_dump.sh /bin/entrypoint_mongo_dump.sh
 
 RUN chmod +x /bin/*.sh
 

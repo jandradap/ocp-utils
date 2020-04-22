@@ -56,6 +56,7 @@ else
   cd ${BACKUP_PATH}/temp || exit 1
   tar -czf backup_${DATE_BACKUP}.tar.gz *
   mv backup_${DATE_BACKUP}.tar.gz ../
+  cd ..
   rm -rf ${BACKUP_PATH}/temp
   sha1sum backup_${DATE_BACKUP}.tar.gz >> checksums.txt
 

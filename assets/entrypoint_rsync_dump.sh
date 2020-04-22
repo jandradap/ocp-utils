@@ -21,7 +21,7 @@ DELETE_OLD_BACKUPS=${DELETE_OLD_BACKUPS:-false}
 MAX_BACKUP_DAYS=${MAX_BACKUP_DAYS:-7}
 FIND_MAX_DEPTH=${FIND_MAX_DEPTH:-2}
 MIN_MAX_DEPTH=${MIN_MAX_DEPTH:-1}
-ORIGIN_VOLUME="/origin"
+ORIGIN_VOLUME="/rsyncori"
 
 if [[ ${PATHS_TO_BACKUP} == "" ]]; then
   echo -e "\nERROR: Missing PATHS_TO_BACKUP env variable"
@@ -46,8 +46,8 @@ else
 
   echo -e "\nLaunch RSYNC temp..."
   mkdir ${PATHS_TO_BACKUP}/temp
-  PATHS_TO_BACKUP=$(echo " ${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g" | cut -b 3-)
-  rsync -axHAX ${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp
+  PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
+  rsync -axHAX ${ORIGIN_VOLUME}/${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp
 
   echo -e "\nList Rsync output:"
   ls -lah ${BACKUP_PATH}/temp/

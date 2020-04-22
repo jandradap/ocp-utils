@@ -26,6 +26,8 @@ DATE_BACKUP=$(date +%Y%m%d%H%M)
 BACKUP_PATH="${BACKUP_STORAGE}/${DATE_BACKUP}"
 DELETE_OLD_BACKUPS=${DELETE_OLD_BACKUPS:-false}
 MAX_BACKUP_DAYS=${MAX_BACKUP_DAYS:-7}
+FIND_MAX_DEPTH=${FIND_MAX_DEPTH:-2}
+MIN_MAX_DEPTH=${MIN_MAX_DEPTH:-1}
 
 if [[ ${DB_USER} == "" ]]; then
   echo -e "\nERROR: Missing DB_USER env variable"
@@ -74,7 +76,7 @@ else
   if [ "$DELETE_OLD_BACKUPS" = true ] ; then {
     echo -e "\nCleaning backups dir ${BACKUP_PATH} older backups than ${MAX_BACKUP_DAYS} days"
     ls -lah ${BACKUP_STORAGE}/
-    find ${BACKUP_STORAGE} -maxdepth 1 -mindepth 1 -type d -mtime +${MAX_BACKUP_DAYS} -exec rm -r {} +
+    find ${BACKUP_STORAGE} -maxdepth ${MIN_MAX_DEPTH} -mindepth ${MIN_MAX_DEPTH} -type d -mtime +${MAX_BACKUP_DAYS} -exec rm -r {} +
     echo -e "\nAfter clean:"
     ls -lah ${BACKUP_STORAGE}/
   }

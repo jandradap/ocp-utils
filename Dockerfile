@@ -35,6 +35,9 @@ RUN apk --update --clean-protected --no-cache add \
   p7zip \
   unzip \
   rsync \
+  strace \
+  mongodb-tools \
+  tree \
   && rm -rf /var/cache/apk/*
 
 # GLIBC FOR OC BINARY
@@ -98,8 +101,11 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
   && chmod +x /usr/local/bin/kubectl
 
 ADD assets/entrypoint.sh /bin/entrypoint.sh
+ADD assets/entrypoint_mysql_dump.sh /bin/entrypoint_mysql_dump.sh
+ADD assets/entrypoint_mongo_dump.sh /bin/entrypoint_mongo_dump.sh
+ADD assets/entrypoint_rsync_dump.sh /bin/entrypoint_rsync_dump.sh
 
-RUN chmod +x /bin/entrypoint.sh
+RUN chmod +x /bin/*.sh
 
 USER 1001
 

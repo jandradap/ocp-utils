@@ -47,13 +47,13 @@ else
   echo -e "\nLaunch RSYNC temp..."
   mkdir -p ${BACKUP_PATH}/temp
   PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
-  rsync -axHAX ${ORIGIN_VOLUME}/${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
+  rsync -avxHAX ${ORIGIN_VOLUME}/${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
 
   echo -e "\nList Rsync output:"
   ls -lah ${BACKUP_PATH}/temp/
 
   echo -e "\nCompress backup path and delete temp:"
-  cd ${PATHS_TO_BACKUP}/temp
+  cd ${BACKUP_PATH}/temp || exit 1
   tar -czf backup_${DATE_BACKUP}.tar.gz *
   mv backup_${DATE_BACKUP}.tar.gz ../
   rm -rf ${BACKUP_PATH}/temp

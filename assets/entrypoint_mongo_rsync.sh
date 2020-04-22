@@ -17,8 +17,8 @@ echo "                                                        ";
 BACKUP_STORAGE=${BACKUP_STORAGE:-/tmp}
 DATE_BACKUP=$(date +%Y%m%d%H%M)
 BACKUP_PATH="${BACKUP_STORAGE}/${DATE_BACKUP}"
-DELETE_OLD_BACKUPS=${DELETE_OLD_BACKUPS:false}
-MAX_BACKUP_DAYS=${MAX_BACKUP_DAYS:7}
+DELETE_OLD_BACKUPS=${DELETE_OLD_BACKUPS:-false}
+MAX_BACKUP_DAYS=${MAX_BACKUP_DAYS:-7}
 
 if [[ ${PATHS_TO_BACKUP} == "" ]]; then
   echo -e "\nERROR: Missing PATHS_TO_BACKUP env variable"

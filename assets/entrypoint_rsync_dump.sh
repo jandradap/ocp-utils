@@ -45,9 +45,9 @@ else
   ls -lah ${BACKUP_PATH}
 
   echo -e "\nLaunch RSYNC temp..."
-  mkdir ${BACKUP_PATH}/temp
+  mkdir -p ${BACKUP_PATH}/temp
   PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
-  rsync -axHAX ${ORIGIN_VOLUME}/${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp
+  rsync -axHAX ${ORIGIN_VOLUME}/${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
 
   echo -e "\nList Rsync output:"
   ls -lah ${BACKUP_PATH}/temp/

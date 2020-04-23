@@ -86,7 +86,7 @@ else
   cat ${BACKUP_PATH}/checksums.txt
 
   if [ "$DELETE_OLD_BACKUPS" = true ] ; then {
-    echo -e "\nCleaning backups dir ${BACKUP_PATH} older backups than ${MAX_BACKUP_DAYS} days"
+    echo -e "\nCleaning backups dir ${BACKUP_STORAGE} older backups than ${MAX_BACKUP_DAYS} days"
     ls -lah ${BACKUP_STORAGE}/
     find ${BACKUP_STORAGE} -maxdepth ${MIN_MAX_DEPTH} -mindepth ${MIN_MAX_DEPTH} -type d -mtime +${MAX_BACKUP_DAYS} -exec rm -r {} +
     echo -e "\nAfter clean:"

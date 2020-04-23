@@ -14,27 +14,36 @@ echo "         |  '--'  ||  \`--'  | |  |  |  | |  |           ";
 echo "         |_______/  \______/  |__|  |__| | _|           ";
 echo "                                                        ";
 
-BACKUP_STORAGE=${BACKUP_STORAGE:-/tmp}
+BACKUP_STORAGE=${BACKUP_STORAGE}
+BACKUP_STORAGE_PREFIX="/rsyncdump"
 DATE_BACKUP=$(date +%Y%m%d%H%M)
-BACKUP_PATH="${BACKUP_STORAGE}/${DATE_BACKUP}"
 DELETE_OLD_BACKUPS=${DELETE_OLD_BACKUPS:-false}
 MAX_BACKUP_DAYS=${MAX_BACKUP_DAYS:-7}
 FIND_MAX_DEPTH=${FIND_MAX_DEPTH:-2}
 MIN_MAX_DEPTH=${MIN_MAX_DEPTH:-1}
 ORIGIN_VOLUME="/rsyncori"
 
-if [[ ${PATHS_TO_BACKUP} == "" ]]; then
-  echo -e "\nERROR: Missing PATHS_TO_BACKUP env variable"
-  exit 1
-fi
-
 if [[ ${ORIGIN_VOLUME} == "" ]]; then
   echo -e "\nERROR: Missing ORIGIN_VOLUME env variable"
   exit 1
 fi
 
+if [[ ${BACKUP_STORAGE} == "" ]]; then
+  echo -e "\nERROR: Missing BACKUP_STORAGE env variable"
+  exit 1
+else {
+  BACKUP_STORAGE="${BACKUP_STORAGE_PREFIX}/${BACKUP_STORAGE}"
+  BACKUP_PATH="${BACKUP_STORAGE}/${DATE_BACKUP}"
+  mkdir -p ${BACKUP_STORAGE}
+}
+fi
+
 echo -e "\nSystem Info:"
-df -h | grep rsyncdump
+df -h | grep "rsyncdump\|rsyncori"
+
+tree -L 3 -T "Origen" /rsyncori
+echo -e "\n"
+tree -L 3 -T "Backup" ${BACKUP_STORAGE}
 
 if [ -d "${BACKUP_PATH}" ]; then
   echo -e "\nERROR: Directory ${BACKUP_PATH} already exits."
@@ -46,8 +55,12 @@ else
 
   echo -e "\nLaunch RSYNC temp..."
   mkdir -p ${BACKUP_PATH}/temp
-  PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
-  rsync -axHAX ${ORIGIN_VOLUME}/${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
+  # if [[ $string = *" "* ]]; then {
+  #   PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
+  # }
+  # fi
+  # rsync -axHAX ${ORIGIN_VOLUME}${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
+  rsync -axHAX ${ORIGIN_VOLUME}/ ${BACKUP_PATH}/temp/ || exit 1
 
   echo -e "\nList Rsync output:"
   ls -lah ${BACKUP_PATH}/temp/
@@ -67,7 +80,7 @@ else
   cat ${BACKUP_PATH}/checksums.txt
 
   if [ "$DELETE_OLD_BACKUPS" = true ] ; then {
-    echo -e "\nCleaning backups dir ${BACKUP_PATH} older backups than ${MAX_BACKUP_DAYS} days"
+    echo -e "\nCleaning backups dir ${BACKUP_STORAGE} older backups than ${MAX_BACKUP_DAYS} days"
     ls -lah ${BACKUP_STORAGE}/
     find ${BACKUP_STORAGE} -maxdepth ${MIN_MAX_DEPTH} -mindepth ${MIN_MAX_DEPTH} -type d -mtime +${MAX_BACKUP_DAYS} -exec rm -r {} +
     echo -e "\nAfter clean:"

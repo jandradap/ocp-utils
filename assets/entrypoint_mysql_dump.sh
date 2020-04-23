@@ -20,9 +20,9 @@ BACKUP_DATABASES=${BACKUP_DATABASES:-${MYSQL_ENV_DB_NAME}}
 DB_HOST=${DB_HOST:-${MYSQL_ENV_DB_HOST}}
 ALL_DATABASES=${ALL_DATABASES}
 IGNORE_DATABASE=${IGNORE_DATABASE}
-BACKUP_STORAGE=${BACKUP_STORAGE:-/tmp}
+BACKUP_STORAGE=${BACKUP_STORAGE}
+BACKUP_STORAGE_PREFIX="/mysqldump"
 DATE_BACKUP=$(date +%Y%m%d%H%M)
-BACKUP_PATH="${BACKUP_STORAGE}/${DATE_BACKUP}"
 DELETE_OLD_BACKUPS=${DELETE_OLD_BACKUPS:-false}
 MAX_BACKUP_DAYS=${MAX_BACKUP_DAYS:-7}
 FIND_MAX_DEPTH=${FIND_MAX_DEPTH:-2}
@@ -43,8 +43,20 @@ if [[ ${DB_HOST} == "" ]]; then
   exit 1
 fi
 
+if [[ ${BACKUP_STORAGE} == "" ]]; then
+  echo -e "\nERROR: Missing BACKUP_STORAGE env variable"
+  exit 1
+else {
+  BACKUP_STORAGE="${BACKUP_STORAGE_PREFIX}/${BACKUP_STORAGE}"
+  BACKUP_PATH="${BACKUP_STORAGE}/${DATE_BACKUP}"
+}
+fi
+
 echo -e "\nSystem Info:"
 df -h | grep mysqldump
+
+echo -e "\n"
+tree -L 3 -T "Backup" ${BACKUP_STORAGE}
 
 if [ -d "${BACKUP_PATH}" ]; then
   echo -e "\nERROR: Directory ${BACKUP_PATH} already exits."
@@ -76,7 +88,7 @@ else
   cat ${BACKUP_PATH}/checksums.txt
 
   if [ "$DELETE_OLD_BACKUPS" = true ] ; then {
-    echo -e "\nCleaning backups dir ${BACKUP_PATH} older backups than ${MAX_BACKUP_DAYS} days"
+    echo -e "\nCleaning backups dir ${BACKUP_STORAGE} older backups than ${MAX_BACKUP_DAYS} days"
     ls -lah ${BACKUP_STORAGE}/
     find ${BACKUP_STORAGE} -maxdepth ${MIN_MAX_DEPTH} -mindepth ${MIN_MAX_DEPTH} -type d -mtime +${MAX_BACKUP_DAYS} -exec rm -r {} +
     echo -e "\nAfter clean:"

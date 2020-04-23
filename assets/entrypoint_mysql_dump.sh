@@ -55,6 +55,9 @@ fi
 echo -e "\nSystem Info:"
 df -h | grep mysqldump
 
+echo -e "\n"
+tree -L 3 -T "Backup" /mysqldump
+
 if [ -d "${BACKUP_PATH}" ]; then
   echo -e "\nERROR: Directory ${BACKUP_PATH} already exits."
   exit 1

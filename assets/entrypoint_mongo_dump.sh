@@ -56,6 +56,9 @@ fi
 echo -e "\nSystem Info:"
 df -h | grep mongodump
 
+echo -e "\n"
+tree -L 3 -T "Backup" /mongodump
+
 if [ -d "${BACKUP_PATH}" ]; then
   echo -e "\nERROR: Directory ${BACKUP_PATH} already exits."
   exit 1

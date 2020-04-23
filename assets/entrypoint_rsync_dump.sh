@@ -59,7 +59,7 @@ else
   # }
   # fi
   # rsync -axHAX ${ORIGIN_VOLUME}${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
-  rsync -axHAX ${ORIGIN_VOLUME} ${BACKUP_PATH}/ || exit 1
+  rsync -axHAX ${ORIGIN_VOLUME}/ ${BACKUP_PATH}/temp/ || exit 1
 
   echo -e "\nList Rsync output:"
   ls -lah ${BACKUP_PATH}/temp/

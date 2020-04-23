@@ -23,11 +23,6 @@ FIND_MAX_DEPTH=${FIND_MAX_DEPTH:-2}
 MIN_MAX_DEPTH=${MIN_MAX_DEPTH:-1}
 ORIGIN_VOLUME="/rsyncori"
 
-if [[ ${PATHS_TO_BACKUP} == "" ]]; then
-  echo -e "\nERROR: Missing PATHS_TO_BACKUP env variable"
-  exit 1
-fi
-
 if [[ ${ORIGIN_VOLUME} == "" ]]; then
   echo -e "\nERROR: Missing ORIGIN_VOLUME env variable"
   exit 1
@@ -47,7 +42,7 @@ df -h | grep "rsyncdump\|rsyncori"
 
 tree -L 3 -T "Origen" /rsyncori
 echo -e "\n"
-tree -L 3 -T "Backup" /rsyncdump
+tree -L 3 -T "Backup" ${BACKUP_STORAGE}
 
 if [ -d "${BACKUP_PATH}" ]; then
   echo -e "\nERROR: Directory ${BACKUP_PATH} already exits."
@@ -59,11 +54,12 @@ else
 
   echo -e "\nLaunch RSYNC temp..."
   mkdir -p ${BACKUP_PATH}/temp
-  if [[ $string = *" "* ]]; then {
-    PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
-  }
-  fi
-  rsync -axHAX ${ORIGIN_VOLUME}${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
+  # if [[ $string = *" "* ]]; then {
+  #   PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
+  # }
+  # fi
+  # rsync -axHAX ${ORIGIN_VOLUME}${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
+  rsync -axHAX ${ORIGIN_VOLUME} ${BACKUP_PATH}/ || exit 1
 
   echo -e "\nList Rsync output:"
   ls -lah ${BACKUP_PATH}/temp/

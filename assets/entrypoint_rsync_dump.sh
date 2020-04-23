@@ -43,7 +43,7 @@ else {
 fi
 
 echo -e "\nSystem Info:"
-df -h | grep rsyncdump
+df -h | grep "rsyncdump\|rsyncori"
 
 if [ -d "${BACKUP_PATH}" ]; then
   echo -e "\nERROR: Directory ${BACKUP_PATH} already exits."
@@ -55,8 +55,11 @@ else
 
   echo -e "\nLaunch RSYNC temp..."
   mkdir -p ${BACKUP_PATH}/temp
-  PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
-  rsync -axHAX ${ORIGIN_VOLUME}/${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
+  if [[ $string = *" "* ]]; then {
+    PATHS_TO_BACKUP=$(echo "${PATHS_TO_BACKUP}" | sed "s: : ${ORIGIN_VOLUME}:g")
+  }
+  fi
+  rsync -axHAX ${ORIGIN_VOLUME}${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
 
   echo -e "\nList Rsync output:"
   ls -lah ${BACKUP_PATH}/temp/

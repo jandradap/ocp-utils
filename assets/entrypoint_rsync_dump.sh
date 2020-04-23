@@ -34,6 +34,7 @@ if [[ ${BACKUP_STORAGE} == "" ]]; then
 else {
   BACKUP_STORAGE="${BACKUP_STORAGE_PREFIX}/${BACKUP_STORAGE}"
   BACKUP_PATH="${BACKUP_STORAGE}/${DATE_BACKUP}"
+  mkdir -p ${BACKUP_STORAGE}
 }
 fi
 
@@ -42,7 +43,7 @@ df -h | grep "rsyncdump\|rsyncori"
 
 tree -L 3 -T "Origen" /rsyncori
 echo -e "\n"
-tree -L 3 -T "Backup" ${BACKUP_STORAGE_PREFIX}
+tree -L 3 -T "Backup" ${BACKUP_STORAGE}
 
 if [ -d "${BACKUP_PATH}" ]; then
   echo -e "\nERROR: Directory ${BACKUP_PATH} already exits."

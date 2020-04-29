@@ -38,6 +38,7 @@ RUN apk --update --clean-protected --no-cache add \
   strace \
   mongodb-tools \
   tree \
+  redis \
   && rm -rf /var/cache/apk/*
 
 # GLIBC FOR OC BINARY

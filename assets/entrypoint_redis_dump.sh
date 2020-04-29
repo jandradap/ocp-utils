@@ -1,20 +1,19 @@
 #!/bin/bash
 
-echo ".___  ___.   ______   .__   __.   _______   ______    _______  .______   ";
-echo "|   \/   |  /  __  \  |  \ |  |  /  _____| /  __  \  |       \ |   _  \  ";
-echo "|  \  /  | |  |  |  | |   \|  | |  |  __  |  |  |  | |  .--.  ||  |_)  | ";
-echo "|  |\/|  | |  |  |  | |  . \`  | |  | |_ | |  |  |  | |  |  |  ||   _  <  ";
-echo "|  |  |  | |  \`--'  | |  |\   | |  |__| | |  \`--'  | |  '--'  ||  |_)  | ";
-echo "|__|  |__|  \______/  |__| \__|  \______|  \______/  |_______/ |______/  ";
-echo "                _______   __    __  .___  ___. .______                   ";
-echo "               |       \ |  |  |  | |   \/   | |   _  \                  ";
-echo "               |  .--.  ||  |  |  | |  \  /  | |  |_)  |                 ";
-echo "               |  |  |  ||  |  |  | |  |\/|  | |   ___/                  ";
-echo "               |  '--'  ||  \`--'  | |  |  |  | |  |                      ";
-echo "               |_______/  \______/  |__|  |__| | _|                      ";
-echo "                                                                         ";
+echo ".______      _______  _______   __       _______.";
+echo "|   _  \    |   ____||       \ |  |     /       |";
+echo "|  |_)  |   |  |__   |  .--.  ||  |    |   (----\`";
+echo "|      /    |   __|  |  |  |  ||  |     \   \    ";
+echo "|  |\  \----|  |____ |  '--'  ||  | .----)   |   ";
+echo "| _| \`._____|_______||_______/ |__| |_______/    ";
+echo "    _______   __    __  .___  ___. .______       ";
+echo "   |       \ |  |  |  | |   \/   | |   _  \      ";
+echo "   |  .--.  ||  |  |  | |  \  /  | |  |_)  |     ";
+echo "   |  |  |  ||  |  |  | |  |\/|  | |   ___/      ";
+echo "   |  '--'  ||  \`--'  | |  |  |  | |  |          ";
+echo "   |_______/  \______/  |__|  |__| | _|          ";
+echo "                                                 ";
 
-DB_USER=${DB_USER:-${MYSQL_ENV_DB_USER}}
 DB_PASS=${DB_PASS:-${MYSQL_ENV_DB_PASS}}
 DB_HOST=${DB_HOST:-${MYSQL_ENV_DB_HOST}}
 DB_PORT=${DB_PORT:-6379}
@@ -26,11 +25,6 @@ DELETE_OLD_BACKUPS=${DELETE_OLD_BACKUPS:-false}
 MAX_BACKUP_DAYS=${MAX_BACKUP_DAYS:-7}
 FIND_MAX_DEPTH=${FIND_MAX_DEPTH:-2}
 MIN_MAX_DEPTH=${MIN_MAX_DEPTH:-1}
-
-if [[ ${DB_USER} == "" ]]; then
-  echo -e "\nERROR: Missing DB_USER env variable"
-  exit 1
-fi
 
 if [[ ${DB_PASS} == "" ]]; then
   echo -e "\nERROR: Missing DB_PASS env variable"

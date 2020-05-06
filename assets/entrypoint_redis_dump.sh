@@ -65,7 +65,7 @@ else
   echo -e "\nForce dump cache to file and wait ${WAIT_SAVE_RDB} sec:"
   redis-cli -h "${DB_HOST}" -p "${DB_PORT}" -a "${DB_PASS}" save || exit 1
   sleep ${WAIT_SAVE_RDB}
-  echo -e "\nTDownload ${RDB_FILE}:"
+  echo -e "\nDownload ${RDB_FILE}:"
   
   cd ${BACKUP_PATH}/
   redis-cli -h "${DB_HOST}" -p "${DB_PORT}" -a "${DB_PASS}" --rdb "${RDB_FILE}" || exit 1

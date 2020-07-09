@@ -39,6 +39,7 @@ RUN apk --update --clean-protected --no-cache add \
   mongodb-tools \
   tree \
   redis \
+  postgresql \
   && rm -rf /var/cache/apk/*
 
 # GLIBC FOR OC BINARY

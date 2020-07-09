@@ -108,6 +108,7 @@ ADD assets/entrypoint_mongo_dump.sh /bin/entrypoint_mongo_dump.sh
 ADD assets/entrypoint_rsync_dump.sh /bin/entrypoint_rsync_dump.sh
 ADD assets/entrypoint_redis_dump.sh /bin/entrypoint_redis_dump.sh
 ADD assets/entrypoint_elasticsearch_dump.sh /bin/entrypoint_elasticsearch_dump.sh
+ADD assets/entrypoint_postgresql_dump.sh /bin/entrypoint_postgresql_dump.sh
 
 RUN chmod +x /bin/*.sh
 

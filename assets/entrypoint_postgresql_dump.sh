@@ -65,9 +65,10 @@ else
   ls -lah ${BACKUP_PATH}
 
   echo -e "\nDumping specific databases option:"
+  export PGPASSWORD="${DB_PASS}"
   for db in $BACKUP_DATABASES; do
     echo -e "\t- Dumping database: $db"
-    pg_dump -i -h "${DB_HOST}" -p 5432 -U "${DB_USER}" -F c -b -v -f "${BACKUP_PATH}/${db}.bak" ${db} || exit 1
+    pg_dump -h "${DB_HOST}" -p 5432 -U "${DB_USER}" -d "${db}" -b -v -f "${BACKUP_PATH}/${db}.bak" || exit 1
     sha1sum ${BACKUP_PATH}/${db}.bak >> ${BACKUP_PATH}/checksums.txt
   done
 

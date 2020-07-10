@@ -16,6 +16,7 @@ echo "                                                       ";
 
 DB_USER=${DB_USER:-${PGSQL_ENV_DB_USER}}
 DB_PASS=${DB_PASS:-${PGSQL_ENV_DB_PASS}}
+BACKUP_DATABASES=${BACKUP_DATABASES:-${PGSQL_ENV_DB_NAME}}
 DB_HOST=${DB_HOST:-${PGSQL_ENV_DB_HOST}}
 BACKUP_STORAGE=${BACKUP_STORAGE}
 BACKUP_STORAGE_PREFIX="/pgdump"
@@ -63,9 +64,12 @@ else
   mkdir -p ${BACKUP_PATH}
   ls -lah ${BACKUP_PATH}
 
-  echo -e "\nDumping all databases"
-  pg_dumpall --username="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" > ${BACKUP_PATH}/all_databases.bak || exit 1
-  sha1sum ${BACKUP_PATH}/all_databases.bak >> ${BACKUP_PATH}/checksums.txt
+  echo -e "\nDumping specific databases option:"
+  for db in $BACKUP_DATABASES; do
+    echo -e "\t- Dumping database: $db"
+    pg_dump -i -h "${DB_HOST}" -p 5432 -U "${DB_USER}" -F c -b -v -f "${BACKUP_PATH}/${db}.bak" ${db} || exit 1
+    sha1sum ${BACKUP_PATH}/${db}.bak >> ${BACKUP_PATH}/checksums.txt
+  done
 
   echo -e "\nBackup list:"
   ls -lah ${BACKUP_PATH}

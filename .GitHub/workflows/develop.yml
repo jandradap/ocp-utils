@@ -1,0 +1,45 @@
+name: Docker Image CI / CD
+
+on:
+
+  push:
+
+    branches:
+
+      - dev*
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@master
+
+    - name: Build the Docker image
+
+      run: docker build . --file Dockerfile --tag docker.pkg.github.com/${{ github.repository }}/ansible-linter:develop
+
+    # - name: Docker login
+
+    #   run: echo $GITHUB_TOKEN | docker login docker.pkg.github.com --username ${{github.actor}} --password-stdin
+
+    # - name: Push Docker image to Github package registry
+
+    #   run: docker push docker.pkg.github.com/${{ github.repository }}/ansible-linter:develop
+
+    - name:  Push Docker image to Github package registry
+
+      run: |
+
+        docker login docker.pkg.github.com --username ${{github.actor}} --password "${GITHUB_PACKAGE_REGISTRY_TOKEN}"
+
+        docker push docker.pkg.github.com/${{ github.repository }}/ansible-linter:develop
+
+      env:
+
+        GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_PACKAGE_REGISTRY_TOKEN }}
+
+...

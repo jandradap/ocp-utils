@@ -41,6 +41,7 @@ RUN apk --update --clean-protected --no-cache add \
   redis \
   postgresql \
   apache2-utils \
+  git \
   && rm -rf /var/cache/apk/*
 
 # GLIBC FOR OC BINARY

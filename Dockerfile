@@ -104,6 +104,15 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
   && mv kubectl /usr/local/bin/ \
   && chmod +x /usr/local/bin/kubectl
 
+# ENV BASE_URL="https://storage.googleapis.com/kubernetes-helm"
+ENV BASE_URL="https://get.helm.sh"
+ENV TAR_FILE="helm-v3.4.2-linux-amd64.tar.gz"
+
+RUN curl -L ${BASE_URL}/${TAR_FILE} |tar xvz && \
+    mv linux-amd64/helm /usr/bin/helm && \
+    chmod +x /usr/bin/helm && \
+    rm -rf linux-amd64
+
 ADD assets/entrypoint.sh /bin/entrypoint.sh
 ADD assets/entrypoint_mysql_dump.sh /bin/entrypoint_mysql_dump.sh
 ADD assets/entrypoint_mongo_dump.sh /bin/entrypoint_mongo_dump.sh

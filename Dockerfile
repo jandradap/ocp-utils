@@ -42,6 +42,11 @@ RUN apk --update --clean-protected --no-cache add \
   postgresql \
   apache2-utils \
   git \
+  tar \
+  gzip \
+  curl \
+  ca-certificates \
+  gettext \
   && rm -rf /var/cache/apk/*
 
 # GLIBC FOR OC BINARY
@@ -86,32 +91,22 @@ RUN apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
         "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
-# OC
-ARG OC_VERSION=4.5
-ARG BUILD_DEPS='tar gzip'
-ARG RUN_DEPS='curl ca-certificates gettext'
+# OC and KUBECTL
 
-RUN apk --no-cache add $BUILD_DEPS $RUN_DEPS && \
-    curl -sLo /tmp/oc.tar.gz https://mirror.openshift.com/pub/openshift-v$(echo \
-    $OC_VERSION | cut -d'.' -f 1)/clients/oc/$OC_VERSION/linux/oc.tar.gz && \
-    tar xzvf /tmp/oc.tar.gz -C /usr/local/bin/ && \
-    rm -rf /tmp/oc.tar.gz && \
-    apk del $BUILD_DEPS
-
-# KUBECTL
-RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s \
-  https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
-  && mv kubectl /usr/local/bin/ \
-  && chmod +x /usr/local/bin/kubectl
+RUN curl -sLo /tmp/oc.tar.gz https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz \
+    && tar xzvf /tmp/oc.tar.gz -C /usr/local/bin/ \
+    && rm -rf /tmp/oc.tar.gz \
+    && chmod +x /usr/local/bin/oc \
+    && chmod +x /usr/local/bin/kubectl
 
 # ENV BASE_URL="https://storage.googleapis.com/kubernetes-helm"
 ENV BASE_URL="https://get.helm.sh"
 ENV TAR_FILE="helm-v3.4.2-linux-amd64.tar.gz"
 
-RUN curl -L ${BASE_URL}/${TAR_FILE} |tar xvz && \
-    mv linux-amd64/helm /usr/bin/helm && \
-    chmod +x /usr/bin/helm && \
-    rm -rf linux-amd64
+RUN curl -L ${BASE_URL}/${TAR_FILE} |tar xvz \
+    && mv linux-amd64/helm /usr/local/bin/helm \
+    && chmod +x /usr/local/bin/helm \
+    && rm -rf linux-amd64
 
 ADD assets/entrypoint.sh /bin/entrypoint.sh
 ADD assets/entrypoint_mysql_dump.sh /bin/entrypoint_mysql_dump.sh

@@ -1,4 +1,4 @@
-FROM alpine:3.12
+FROM alpine:3.13
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -47,6 +47,14 @@ RUN apk --update --clean-protected --no-cache add \
   curl \
   ca-certificates \
   gettext \
+  python2 \
+  && python -m ensurepip \
+  && rm -r /usr/lib/python*/ensurepip \
+  && pip install --upgrade \
+  pip \
+  setuptools \
+  pyzmail \
+  yq \
   && rm -rf /var/cache/apk/*
 
 # GLIBC FOR OC BINARY
@@ -92,7 +100,6 @@ RUN apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
         "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
 # OC and KUBECTL
-
 RUN curl -sLo /tmp/oc.tar.gz https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz \
     && tar xzvf /tmp/oc.tar.gz -C /usr/local/bin/ \
     && rm -rf /tmp/oc.tar.gz \

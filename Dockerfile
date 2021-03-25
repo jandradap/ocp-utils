@@ -48,6 +48,7 @@ RUN apk --update --clean-protected --no-cache add \
   ca-certificates \
   gettext \
   python2 \
+  openldap-clients \
   && python -m ensurepip \
   && rm -r /usr/lib/python*/ensurepip \
   && pip install --upgrade \

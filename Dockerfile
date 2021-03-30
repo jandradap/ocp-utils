@@ -124,13 +124,7 @@ RUN VERSIONKAM=$(curl --silent "https://api.github.com/repos/redhat-developer/ka
   && curl -sSL -o /usr/bin/kam https://github.com/redhat-developer/kam/releases/download/${VERSIONKAM}/kam_linux_amd64 \
   && chmod +x /usr/bin/kam
 
-ADD assets/entrypoint.sh /bin/entrypoint.sh
-ADD assets/entrypoint_mysql_dump.sh /bin/entrypoint_mysql_dump.sh
-ADD assets/entrypoint_mongo_dump.sh /bin/entrypoint_mongo_dump.sh
-ADD assets/entrypoint_rsync_dump.sh /bin/entrypoint_rsync_dump.sh
-ADD assets/entrypoint_redis_dump.sh /bin/entrypoint_redis_dump.sh
-ADD assets/entrypoint_elasticsearch_dump.sh /bin/entrypoint_elasticsearch_dump.sh
-ADD assets/entrypoint_postgresql_dump.sh /bin/entrypoint_postgresql_dump.sh
+ADD assets/*.sh /bin/
 
 RUN chmod +x /bin/*.sh
 

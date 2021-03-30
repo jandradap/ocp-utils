@@ -109,7 +109,7 @@ RUN curl -sLo /tmp/oc.tar.gz https://mirror.openshift.com/pub/openshift-v4/clien
 
 # HELM
 RUN VERSIONHELM=$(curl --silent "https://api.github.com/repos/helm/helm/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/') \
-  && curl -L https://get.helm.sh/helm-${VERSIONHELM}-linux-amd64.tar.gz} |tar xvz \
+  && curl -L https://get.helm.sh/helm-${VERSIONHELM}-linux-amd64.tar.gz |tar xvz \
   && mv linux-amd64/helm /usr/bin/helm \
   && chmod +x /usr/bin/helm \
   && rm -rf linux-amd64

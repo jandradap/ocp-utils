@@ -44,7 +44,7 @@ then
 fi
 # clean older backup
 f_log "INFO: Cleaning backup older then ${RETENTION_DAYS} days"
-find ${DESTINATION_PATH} -mount -type f -mtime "+$RETENTION_DAYS" -delete
+find ${DESTINATION_PATH} -xdev -type f -mtime "+$RETENTION_DAYS" -delete
 # check if kubectl command is present
 KUBECTL_PATH=$(which kubectl 2>/dev/null)
 if [[ $? -ne 0 ]]
@@ -86,7 +86,7 @@ then
 fi
 # retrieve master nodes in random order to make a simple round robin on the nodes
 f_log "INFO: Master nodes are all OK, start backup on random node."
-MASTER_NODE_LIST=$($KUBECTL_PATH get nodes -l "node-role.kubernetes.io/master=" -o name | sort -R | cut -d '/' -f 2 | tr '\n' ' ' 2>/dev/null)
+MASTER_NODE_LIST=$($KUBECTL_PATH get nodes -l "node-role.kubernetes.io/master=" -o name | cut -d '/' -f 2 | tr '\n' ' ' 2>/dev/null)
 for MASTER_NODE in $MASTER_NODE_LIST
 do
   # testing if master node is reachable

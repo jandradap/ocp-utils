@@ -124,6 +124,11 @@ RUN VERSIONKAM=$(curl --silent "https://api.github.com/repos/redhat-developer/ka
   && curl -sSL -o /usr/bin/kam https://github.com/redhat-developer/kam/releases/download/${VERSIONKAM}/kam_linux_amd64 \
   && chmod +x /usr/bin/kam
 
+# KUBESEAL
+RUN VERSIONKUBESEAL=$(curl --silent "https://api.github.com/repos/bitnami-labs/sealed-secrets/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') \
+  && curl -sSL -o /usr/bin/kubeseal https://github.com/bitnami-labs/sealed-secrets/releases/download/${VERSIONKUBESEAL}/kubeseal-linux-amd64 \
+  && chmod +x /usr/bin/kubeseal
+
 ADD assets/*.sh /bin/
 
 RUN chmod +x /bin/*.sh

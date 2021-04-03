@@ -1,6 +1,6 @@
 #!/bin/bash
 # FILE: etcd-backup.sh
-# AUTHOR: Simone Mossi
+# AUTHOR: Jorge Andrada
 # PURPOSE: take the etcd backup of an openshift 4.x cluster connecting to a "random" master
 
 ## FUNCTIONS
@@ -46,7 +46,7 @@ fi
 f_log "INFO: Cleaning backup older then ${RETENTION_DAYS} days"
 find ${DESTINATION_PATH} -xdev -type f -mtime "+$RETENTION_DAYS" -delete
 # check if kubectl command is present
-KUBECTL_PATH=$(which kubectl 2>/dev/null)
+OC_PATH=$(which oc 2>/dev/null)
 if [[ $? -ne 0 ]]
 then
   f_log -e "ERROR: Can't find kubectl command in $PATH, check the image used."
@@ -54,7 +54,7 @@ then
 fi
 # check if the cronjob pod is already connected to the cluster
 # if not logged kubectl version command will time out by asking user and password
-timeout 30 $KUBECTL_PATH version &>/dev/null
+timeout 30 $OC_PATH version &>/dev/null
 if [[ $? -eq 0 ]]
 then
   f_log "INFO: Pod $HOSTNAME is already logged to cluster."
@@ -62,23 +62,23 @@ else
   # start login by retrieving serviceaccount token and certificates
   LOGIN_TOKEN=$(cat $LOGIN_SECRET_TOKEN_PATH 2>/dev/null)
   # login to the cluster
-  timeout 30 $KUBECTL_PATH login $KUP_API_SERVER --token="$LOGIN_TOKEN" --certificate-authority="$LOGIN_CA_PATH"
+  timeout 30 $OC_PATH login $API_SERVER --token="$LOGIN_TOKEN" --certificate-authority="$LOGIN_CA_PATH"
   # re-check login
-  timeout 30 $KUBECTL_PATH version &>/dev/null
+  timeout 30 $OC_PATH version &>/dev/null
   if [[ $? -ne 0 ]]
   then
-    f_log "ERROR: Can't login on the cluster at $KUBE_API_SERVER, check service-account and secrets"
+    f_log "ERROR: Can't login on the cluster at $API_SERVER, check service-account and secrets"
     f_exit 21
   fi
 fi
 # check if serviceaccount can list nodes
-($KUBECTL_PATH auth can-i list nodes 2>/dev/null)
+($OC_PATH auth can-i list nodes 2>/dev/null)
 if [[ $? -ne 0 ]]
 then
   f_log "ERROR: Service account can't list nodes. Check if etcd-backup-view-nodes role is configured and binded to etcd-backup-sa"
 fi
 # check if cluster master node are all ready
-NOT_READY_NODES=$($KUBECTL_PATH get nodes -l "node-role.kubernetes.io/master=" | grep -v '^NAME ' | grep -v ' Ready' | wc -l 2>/dev/null)
+NOT_READY_NODES=$($OC_PATH get nodes -l "node-role.kubernetes.io/master=" | grep -v '^NAME ' | grep -v ' Ready' | wc -l 2>/dev/null)
 if [[ "$NOT_READY_NODES" -ne 0 ]]
 then
   f_log "ERROR: Some master nodes aren't ready. Check cluster health."
@@ -86,56 +86,22 @@ then
 fi
 # retrieve master nodes in random order to make a simple round robin on the nodes
 f_log "INFO: Master nodes are all OK, start backup on random node."
-MASTER_NODE_LIST=$($KUBECTL_PATH get nodes -l "node-role.kubernetes.io/master=" -o name | cut -d '/' -f 2 | tr '\n' ' ' 2>/dev/null)
-for MASTER_NODE in $MASTER_NODE_LIST
-do
-  # testing if master node is reachable
-  f_log "INFO: Trying to backup master node $MASTER_NODE."
-  (timeout 30 ssh -n $SSH_OPTIONS core@$MASTER_NODE "echo 'Check'" &>/dev/null)
-  if [[ $? -ne 0 ]]
-  then
-    # if not, skip the node and choose the next node
-    f_log "WARNING: Master node $MASTER_NODE seems to be unreachable! Trying next node."
-    continue
-  fi
-  # remove the old backup file if present
-  ssh -n $SSH_OPTIONS core@$MASTER_NODE "sudo rm -rf $MASTER_NODE_BACKUP_DESTINATION_PATH/*"
-  # launch the openshift cluster backup script present on the nodes
-  ssh -n $SSH_OPTIONS core@$MASTER_NODE "sudo /usr/local/bin/cluster-backup.sh $MASTER_NODE_BACKUP_DESTINATION_PATH"
-  if [[ $? -ne 0 ]]
-  then
-    f_log "WARNING: Can't take backup on $MASTER_NODE, trying another master node"
-    continue
-  fi
-  # create the tar archive name with timestamp
-  BACKUP_ARCHIVE_DATE=$(date +%Y%m%d_%H%M%S 2>/dev/null)
-  BACKUP_ARCHIVE_NAME="cluster-backup_$BACKUP_ARCHIVE_DATE.tar.gz"
-  BACKUP_ARCHIVE_FULL_PATH="$MASTER_NODE_BACKUP_DESTINATION_PATH/$BACKUP_ARCHIVE_NAME"
-  f_log "INFO: Creating backup archive $BACKUP_ARCHIVE_FULL_PATH"
-  # creating the tar.gz archive and delete the original archived files
-  ssh -n $SSH_OPTIONS core@$MASTER_NODE "sudo tar -czf $BACKUP_ARCHIVE_FULL_PATH $MASTER_NODE_BACKUP_DESTINATION_PATH/* --remove-files"
-  if [[ $? -ne 0 ]]
-  then
-    f_log "WARNING: There was a problem in the tar process, skipping to next node."
-    continue
-  fi
-  # copy the archive from the master node to the persistent volume claim
-  f_log "INFO: Copy backup archive $BACKUP_ARCHIVE_NAME to ${DESTINATION_PATH}"
-  scp $SSH_OPTIONS core@$MASTER_NODE:$BACKUP_ARCHIVE_FULL_PATH ${DESTINATION_PATH}
-  if [[ $? -eq 0 ]]
-  then
-    ssh -n $SSH_OPTIONS core@$MASTER_NODE "sudo rm -f $BACKUP_ARCHIVE_FULL_PATH"
-    f_log "INFO: Archive copied on ${DESTINATION_PATH}/$BACKUP_ARCHIVE_NAME"
-    # set the backup flag to 0 to inform success
-    BACKUP_DONE=0
-    break
-  fi
-  f_log "WARNING: Problem on taking the backup from $MASTER_NODE, trying from another master"
-done
-if [[ $BACKUP_DONE -eq 0 ]]
-then
-  f_log "INFO: Backup succesfully done, backup file is in $OCP4_BACKUPPER_DESTINATION_PATH"
-  f_exit 0
+
+echo -e "\nCreando backup ETCD..."
+mkdir -p etcd
+healthy=$($OC_PATH get etcd -o=jsonpath='{range .items[0].status.conditions[?(@.type=="EtcdMembersAvailable")]}{.message}{"\n"}')
+if [ "$healthy" != "3 members are available" ]; then
+  echo "check to see if something is broken"
+  exit 1
 fi
-f_log "ERROR: Can't take a backup on any master node in $MASTER_NODE_LIST"
-f_exit 30
+#if [ ! -d ./backup ]; then mkdir ./backup; fi
+#backupdir=$(mktemp -dt "backup.XXXXXXXX" --tmpdir=./backup)
+# get etcd's node name
+ETCD_NODE=$($OC_PATH get pods -n openshift-etcd -l app=etcd -o=jsonpath='{.items[0].spec.nodeName}')
+# use ssh to remove old backup, take new backup, copy it off.
+ssh -n "${SSH_OPTIONS}" "core@${ETCD_NODE}" 'sudo -E rm -rf ./assets/backup/*' | exit 1
+ssh -n "${SSH_OPTIONS}" "core@${ETCD_NODE}" 'sudo -E /usr/local/bin/cluster-backup.sh ./assets/backup' | exit 1
+ssh -n "${SSH_OPTIONS}" "core@${ETCD_NODE}" 'sudo -E chmod 644 ./assets/backup/*' | exit 1
+scp "${SSH_OPTIONS}" "core@${ETCD_NODE}":/home/core/assets/backup/* "${DESTINATION_PATH}" | exit 1
+
+ls -lh "${DESTINATION_PATH}"

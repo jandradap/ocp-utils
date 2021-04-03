@@ -97,7 +97,7 @@ fi
 #if [ ! -d ./backup ]; then mkdir ./backup; fi
 #backupdir=$(mktemp -dt "backup.XXXXXXXX" --tmpdir=./backup)
 # get etcd's node name
-ETCD_NODE=$($OC_PATH get pods -n openshift-etcd -l app=etcd -o=jsonpath='{.items[0].spec.nodeName}')
+ETCD_NODE=$($OC_PATH get nodes -l "node-role.kubernetes.io/master=" -o name | head -n1 | cut -d '/' -f 2 | tr '\n' ' ' 2>/dev/null)
 # use ssh to remove old backup, take new backup, copy it off.
 ssh -n "${SSH_OPTIONS}" "core@${ETCD_NODE}" 'sudo -E rm -rf ./assets/backup/*' | exit 1
 ssh -n "${SSH_OPTIONS}" "core@${ETCD_NODE}" 'sudo -E /usr/local/bin/cluster-backup.sh ./assets/backup' | exit 1

@@ -49,6 +49,7 @@ RUN apk --update --clean-protected --no-cache add \
   gettext \
   python2 \
   openldap-clients \
+  openssh-client \
   && python -m ensurepip \
   && rm -r /usr/lib/python*/ensurepip \
   && pip install --upgrade \

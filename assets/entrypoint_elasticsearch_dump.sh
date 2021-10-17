@@ -58,12 +58,16 @@ else {
     echo -e "\nThere are no snapshots."
   else
     echo -e "\nDeleting old snapshots..."
+    curl -s -X DELETE "${ELASTIC_SVC_NAME}:${ELASTIC_SVC_PORT}/_snapshot/${ELASTIC_BCK_FOLDER_NAME}" | jq "."
+    sleep 30
     rm -rf /rsyncori/* &
     BACK_PID=$!
     wait $BACK_PID
     ls -lh /rsyncori
   fi
 
+  echo -e "\nCreating backup folder..."
+  curl -H "Content-Type: application/json" -X PUT "${ELASTIC_SVC_NAME}:${ELASTIC_SVC_PORT}/_snapshot/${ELASTIC_BCK_FOLDER_NAME}" -d '{"type": "fs","settings":{"location":"/usr/share/elasticsearch/mount/backups"}}'
   echo -e "\nSnapshot creation launched..."
   curl -s -X PUT "${ELASTIC_SVC_NAME}:${ELASTIC_SVC_PORT}/_snapshot/${ELASTIC_BCK_FOLDER_NAME}/snapshot?wait_for_completion=false" | jq "."
   echo -e "\nChecking snapshot..."

@@ -22,6 +22,7 @@ MAX_BACKUP_DAYS=${MAX_BACKUP_DAYS:-7}
 FIND_MAX_DEPTH=${FIND_MAX_DEPTH:-2}
 MIN_MAX_DEPTH=${MIN_MAX_DEPTH:-1}
 ORIGIN_VOLUME="/rsyncori"
+EXCLUDE_DIR=${EXCLUDE_DIR:-""}
 
 if [[ ${ORIGIN_VOLUME} == "" ]]; then
   echo -e "\nERROR: Missing ORIGIN_VOLUME env variable"
@@ -60,7 +61,12 @@ else
   # }
   # fi
   # rsync -axHAX ${ORIGIN_VOLUME}${PATHS_TO_BACKUP} ${BACKUP_PATH}/temp || exit 1
-  rsync -axHAX ${ORIGIN_VOLUME}/ ${BACKUP_PATH}/temp/ || exit 1
+  if [ "${EXCLUDE_DIR}" != "" ]; then {
+    rsync --exclude ${EXCLUDE_DIR} -axHA ${ORIGIN_VOLUME}/ ${BACKUP_PATH}/temp/ || exit 1
+  } else {
+    rsync -axHA ${ORIGIN_VOLUME}/ ${BACKUP_PATH}/temp/ || exit 1
+  }
+  fi
 
   echo -e "\nList Rsync output:"
   ls -lah ${BACKUP_PATH}/temp/

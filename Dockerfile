@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM alpine:3.14
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -48,6 +48,8 @@ RUN apk --update --clean-protected --no-cache add \
   ca-certificates \
   gettext \
   python2 \
+  openldap-clients \
+  openssh-client \
   && python -m ensurepip \
   && rm -r /usr/lib/python*/ensurepip \
   && pip install --upgrade \
@@ -106,22 +108,29 @@ RUN curl -sLo /tmp/oc.tar.gz https://mirror.openshift.com/pub/openshift-v4/clien
     && chmod +x /usr/local/bin/oc \
     && chmod +x /usr/local/bin/kubectl
 
-# ENV BASE_URL="https://storage.googleapis.com/kubernetes-helm"
-ENV BASE_URL="https://get.helm.sh"
-ENV TAR_FILE="helm-v3.4.2-linux-amd64.tar.gz"
+# HELM
+RUN VERSIONHELM=$(curl --silent "https://api.github.com/repos/helm/helm/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/') \
+  && curl -L https://get.helm.sh/helm-${VERSIONHELM}-linux-amd64.tar.gz |tar xvz \
+  && mv linux-amd64/helm /usr/bin/helm \
+  && chmod +x /usr/bin/helm \
+  && rm -rf linux-amd64
 
-RUN curl -L ${BASE_URL}/${TAR_FILE} |tar xvz \
-    && mv linux-amd64/helm /usr/local/bin/helm \
-    && chmod +x /usr/local/bin/helm \
-    && rm -rf linux-amd64
+# ARGOCD
+RUN VERSIONARGO=$(curl --silent "https://api.github.com/repos/argoproj/argo-cd/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/') \
+  && curl -sSL -o /usr/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${VERSIONARGO}/argocd-linux-amd64 \
+  && chmod +x /usr/bin/argocd
 
-ADD assets/entrypoint.sh /bin/entrypoint.sh
-ADD assets/entrypoint_mysql_dump.sh /bin/entrypoint_mysql_dump.sh
-ADD assets/entrypoint_mongo_dump.sh /bin/entrypoint_mongo_dump.sh
-ADD assets/entrypoint_rsync_dump.sh /bin/entrypoint_rsync_dump.sh
-ADD assets/entrypoint_redis_dump.sh /bin/entrypoint_redis_dump.sh
-ADD assets/entrypoint_elasticsearch_dump.sh /bin/entrypoint_elasticsearch_dump.sh
-ADD assets/entrypoint_postgresql_dump.sh /bin/entrypoint_postgresql_dump.sh
+# KAM
+RUN VERSIONKAM=$(curl --silent "https://api.github.com/repos/redhat-developer/kam/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') \
+  && curl -sSL -o /usr/bin/kam https://github.com/redhat-developer/kam/releases/download/${VERSIONKAM}/kam_linux_amd64 \
+  && chmod +x /usr/bin/kam
+
+# KUBESEAL
+RUN VERSIONKUBESEAL=$(curl --silent "https://api.github.com/repos/bitnami-labs/sealed-secrets/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') \
+  && curl -sSL -o /usr/bin/kubeseal https://github.com/bitnami-labs/sealed-secrets/releases/download/${VERSIONKUBESEAL}/kubeseal-linux-amd64 \
+  && chmod +x /usr/bin/kubeseal
+
+ADD assets/*.sh /bin/
 
 RUN chmod +x /bin/*.sh
 

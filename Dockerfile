@@ -130,6 +130,11 @@ RUN VERSIONKUBESEAL=$(curl --silent "https://api.github.com/repos/bitnami-labs/s
   && curl -sSL -o /usr/bin/kubeseal https://github.com/bitnami-labs/sealed-secrets/releases/download/${VERSIONKUBESEAL}/kubeseal-linux-amd64 \
   && chmod +x /usr/bin/kubeseal
 
+# yq ultimo
+ENV VERSION=v4.16.2
+RUN wget https://github.com/mikefarah/yq/releases/download/${VERSION}/yq_linux_amd64.tar.gz -O - |\
+  tar xz && mv yq_linux_amd64 /usr/bin/yq4
+
 ADD assets/*.sh /bin/
 
 RUN chmod +x /bin/*.sh

@@ -2,6 +2,6 @@
 
 while true; 
 do 
-  sleep 12; 
+  sleep 60; 
   echo "Happy testing!";
 done

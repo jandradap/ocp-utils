@@ -1,92 +1,63 @@
-FROM alpine:3.15
+FROM registry.access.redhat.com/ubi8/ubi:8.5-226 AS builder
+
+RUN dnf install -y gcc make
+
+RUN cd /tmp \
+  && curl https://download.redis.io/redis-stable.tar.gz -o redis-stable.tar.gz \
+  && tar -xvf redis-stable.tar.gz \
+  && cd redis-stable/ \
+  && make distclean \
+  && make
+
+FROM registry.access.redhat.com/ubi8/ubi:8.5-226
+
+COPY --from=builder /tmp/redis-stable/src/redis-cli /usr/local/bin
+
+ADD repo/*.repo /etc/yum.repos.d/
 
 # BASE
-RUN apk --update --clean-protected --no-cache add \
-  drill \
-  htop \
-  bind-tools \
-  wget \
-  curl \
-  nmap \
-  mariadb-client \
-  vim \
-  openssl \
-  bash \
-  jq \
-  sudo \
-  iputils \
-  busybox-extras \
-  nfs-utils \
-  zip \
-  p7zip \
-  unzip \
-  rsync \
-  strace \
-  mongodb-tools \
-  tree \
-  redis \
-  postgresql \
-  apache2-utils \
-  git \
-  tar \
-  gzip \
-  curl \
-  ca-certificates \
-  gettext \
-  python2 \
-  openldap-clients \
-  openssh-client \
-  proxychains-ng \
-  && python -m ensurepip \
-  && rm -r /usr/lib/python*/ensurepip \
-  && pip install --upgrade \
-  pip \
-  setuptools \
-  pyzmail \
-  yq \
-  && rm -rf /var/cache/apk/*
-
-# GLIBC FOR OC BINARY
-ENV LANG=C.UTF-8
-
-ARG ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download"
-ARG ALPINE_GLIBC_PACKAGE_VERSION="2.30-r0"
-ARG ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk"
-ARG ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk"
-ARG ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk"
-
-RUN apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
-    echo \
-        "-----BEGIN PUBLIC KEY-----\
-        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApZ2u1KJKUu/fW4A25y9m\
-        y70AGEa/J3Wi5ibNVGNn1gT1r0VfgeWd0pUybS4UmcHdiNzxJPgoWQhV2SSW1JYu\
-        tOqKZF5QSN6X937PTUpNBjUvLtTQ1ve1fp39uf/lEXPpFpOPL88LKnDBgbh7wkCp\
-        m2KzLVGChf83MS0ShL6G9EQIAUxLm99VpgRjwqTQ/KfzGtpke1wqws4au0Ab4qPY\
-        KXvMLSPLUp7cfulWvhmZSegr5AdhNw5KNizPqCJT8ZrGvgHypXyiFvvAH5YRtSsc\
-        Zvo9GI2e2MaZyo9/lvb+LbLEJZKEQckqRj4P26gmASrZEPStwc+yqy1ShHLA0j6m\
-        1QIDAQAB\
-        -----END PUBLIC KEY-----" | sed 's/   */\n/g' > "/etc/apk/keys/sgerrand.rsa.pub" && \
+RUN rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+  && rpm -ivh https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
+  && dnf install -y \
+    podman \
+    podman-docker \
+    podman-compose \
+    podman-plugins \
+    htop \
+    bind-utils \
     wget \
-        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
-    apk add --no-cache \
-        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME" && \
-    \
-    rm "/etc/apk/keys/sgerrand.rsa.pub" && \
-    /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
-    echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
-    \
-    apk del glibc-i18n && \
-    \
-    rm "/root/.wget-hsts" && \
-    apk del .build-dependencies && \
-    rm \
-        "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
-        "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
+    curl \
+    nmap \
+    mariadb-connector-c \
+    vim \
+    openssl \
+    bash \
+    jq \
+    sudo \
+    iputils \
+    libnfs-utils \
+    zip \
+    p7zip \
+    unzip \
+    rsync \
+    # strace \
+    mongocli \
+    postgresql14 \
+    httpd-tools \
+    git \
+    tar \
+    gzip \
+    curl \
+    ca-certificates \
+    gettext \
+    python2 \
+    openldap-clients \
+    openssh-clients \
+    proxychains-ng \
+    logrotate \ 
+  && rpm -ivh https://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/tree-1.7.0-15.el8.x86_64.rpm \
+  && rpm -ivh https://vault.centos.org/8.5.2111/AppStream/x86_64/os/Packages/redis-6.0.9-5.module_el8.4.0+956+a52e9aa4.x86_64.rpm \
+  && dnf clean all
 
 # OC and KUBECTL
 RUN curl -sLo /tmp/oc.tar.gz https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz \
